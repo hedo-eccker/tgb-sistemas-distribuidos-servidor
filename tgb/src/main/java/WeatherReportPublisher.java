@@ -13,6 +13,7 @@ public class WeatherReportPublisher {
     static final String host = "tcp://*:5557";
     static final String serverHost = "tcp://localhost:5556";
 
+
     public static void main(String[] args) throws InterruptedException {
         try(ZContext context = new ZContext()) {
             ZMQ.Socket reqSocket = context.createSocket(SocketType.REQ);
@@ -25,7 +26,8 @@ public class WeatherReportPublisher {
                 reqSocket.send("::fetchReports", 0);
                 String availableAveragesJson = new String(reqSocket.recv(0), ZMQ.CHARSET);
 
-                System.out.println("Recebendo " + availableAveragesJson);
+                System.out.println("Recebendo informações do servidor de medições: " + availableAveragesJson);
+
                 GsonBuilder gsonBuilder = new GsonBuilder();
                 gsonBuilder.setDateFormat("dd/MM/yyyy");
                 Gson gson = gsonBuilder.create();
@@ -34,7 +36,7 @@ public class WeatherReportPublisher {
 
                 for (WeatherAverage average: averages) {
                     String averageJson = gson.toJson(average);
-                    System.out.println("Publicando " + averageJson);
+                    System.out.println("Publicando informações para subscribers: " + averageJson);
                     pubSocket.send(averageJson);
                 }
 
